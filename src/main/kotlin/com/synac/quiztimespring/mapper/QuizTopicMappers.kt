@@ -5,20 +5,6 @@ import com.synac.quiztimespring.controller.QuizTopicResponse
 import com.synac.quiztimespring.database.model.QuizTopic
 import org.bson.types.ObjectId
 
-/*
-fun QuizTopicEntity.toQuizTopic() = QuizTopic(
-    id = id,
-    name = name,
-    imageUrl = imageUrl,
-    code = code
-)
-
-fun QuizTopic.toQuizTopicEntity() = QuizTopicEntity(
-    name = name,
-    imageUrl = imageUrl,
-    code = code
-)*/
-
 fun QuizTopic.toResponse() = QuizTopicResponse(
     id = id.toHexString(),
     name = name,
