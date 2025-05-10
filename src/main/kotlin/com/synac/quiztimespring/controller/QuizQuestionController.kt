@@ -1,101 +1,101 @@
 package com.synac.quiztimespring.controller
 
-import com.synac.quiztimespring.database.repository.QuizQuestionRepository
-import com.synac.quiztimespring.mapper.toEntity
+import com.synac.quiztimespring.dtos.QuizQuestionRequest
+import com.synac.quiztimespring.dtos.QuizQuestionResponse
 import com.synac.quiztimespring.mapper.toResponse
+import com.synac.quiztimespring.service.QuizQuestionService
+import com.synac.quiztimespring.util.ResponseUtils
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.Size
-import org.bson.types.ObjectId
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/quiz/questions")
 class QuizQuestionController(
-    private val questionRepository: QuizQuestionRepository
+    private val service: QuizQuestionService
 ) {
 
     @PostMapping
     fun upsert(
         @Valid @RequestBody body: QuizQuestionRequest
-    ) {
-        questionRepository.save(body.toEntity())
+    ): ResponseEntity<Any> {
+        return try {
+            service.upsert(body)
+            ResponseUtils.created(mapOf("message" to "Saved successfully"))
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to save question")
+        }
     }
 
     @PostMapping("/batch")
     fun insertMultiple(
         @Valid @RequestBody body: List<@Valid QuizQuestionRequest>
-    ) {
-        val entities = body.map { it.toEntity() }
-        questionRepository.saveAll(entities)
+    ): ResponseEntity<Any> {
+        return try {
+            service.insertMultiple(body)
+            ResponseUtils.created(mapOf("message" to "Batch insert successfully"))
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to insert question")
+        }
     }
 
     @GetMapping
-    fun getAll(): List<QuizQuestionResponse> {
-        return questionRepository.findAll()
-            .map { it.toResponse() }
+    fun getAll(): ResponseEntity<Any> {
+        return try {
+            val questions = service.getAll()
+            if (questions.isNotEmpty()) {
+                ResponseUtils.ok(questions)
+            } else {
+                ResponseUtils.notFound("Quiz questions not found")
+            }
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to retrieve questions")
+        }
     }
 
     @GetMapping("/random")
     fun getRandomQuestions(
         @RequestParam(required = false) topicCode: Int?,
         @RequestParam(required = false, defaultValue = "10") limit: Int
-    ): List<QuizQuestionResponse> {
-        val questions = if (topicCode != null) {
-            questionRepository.findByTopicCode(topicCode)
-        } else {
-            questionRepository.findAll()
+    ): ResponseEntity<Any> {
+        return try {
+            val questions = service.getRandom(topicCode, limit)
+            if (questions.isNotEmpty()) {
+                ResponseUtils.ok(questions)
+            } else {
+                ResponseUtils.notFound("Quiz questions not found")
+            }
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to retrieve questions")
         }
-
-        return questions.shuffled().take(limit).map { it.toResponse() }
     }
 
     @GetMapping(path = ["/{id}"])
     fun getById(
         @PathVariable id: String
-    ): QuizQuestionResponse {
-        val question = questionRepository.findById(ObjectId(id)).orElseThrow {
-            IllegalArgumentException("Quiz Topic not found")
+    ): ResponseEntity<Any> {
+        return try {
+            val question = service.getById(id)
+            if (question != null) {
+                ResponseUtils.ok(question)
+            } else {
+                ResponseUtils.notFound("Quiz question not found")
+            }
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to retrieve question")
         }
-        return question.toResponse()
     }
 
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(
         @PathVariable id: String
-    ) {
-        questionRepository.deleteById(ObjectId(id))
+    ): ResponseEntity<Any> {
+        return try {
+            service.deleteById(id)
+            ResponseEntity.ok(mapOf("message" to "Deleted successfully"))
+        } catch (e: Exception) {
+            ResponseUtils.internalServerError("Failed to delete question")
+        }
     }
 
 }
-
-data class QuizQuestionRequest(
-    val id: String? = null,
-
-    @field:NotBlank(message = "Question must not be empty")
-    @field:Size(min = 5, message = "Question must be at least 5 characters long")
-    val question: String,
-
-    @field:NotBlank(message = "Correct answer must not be empty")
-    val correctAnswer: String,
-
-    @field:NotEmpty(message = "There must be at least one incorrect answer")
-    val incorrectAnswers: List<@NotBlank(message = "Incorrect answers must not be empty") String>,
-
-    @field:NotBlank(message = "Explanation must not be empty")
-    val explanation: String,
-
-    @field:Min(value = 1, message = "Topic code must be a positive integer")
-    val topicCode: Int
-)
-
-data class QuizQuestionResponse(
-    val id: String,
-    val question: String,
-    val correctAnswer: String,
-    val incorrectAnswers: List<String>,
-    val explanation: String,
-    val topicCode: Int
-)
