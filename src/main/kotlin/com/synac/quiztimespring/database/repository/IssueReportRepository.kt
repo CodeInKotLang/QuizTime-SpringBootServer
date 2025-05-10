@@ -4,6 +4,4 @@ import com.synac.quiztimespring.database.model.IssueReport
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.MongoRepository
 
-interface IssueReportRepository: MongoRepository<IssueReport, ObjectId> {
-
-}
+interface IssueReportRepository: MongoRepository<IssueReport, ObjectId>

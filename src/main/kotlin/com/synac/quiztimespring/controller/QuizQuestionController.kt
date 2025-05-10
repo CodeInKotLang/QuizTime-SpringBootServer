@@ -2,7 +2,7 @@ package com.synac.quiztimespring.controller
 
 import com.synac.quiztimespring.dtos.QuizQuestionRequest
 import com.synac.quiztimespring.dtos.QuizQuestionResponse
-import com.synac.quiztimespring.mapper.toResponse
+import com.synac.quiztimespring.dtos.mapper.toResponse
 import com.synac.quiztimespring.service.QuizQuestionService
 import com.synac.quiztimespring.util.ResponseUtils
 import jakarta.validation.Valid
@@ -91,8 +91,11 @@ class QuizQuestionController(
         @PathVariable id: String
     ): ResponseEntity<Any> {
         return try {
-            service.deleteById(id)
-            ResponseEntity.ok(mapOf("message" to "Deleted successfully"))
+            if (service.deleteById(id)) {
+                ResponseUtils.ok(mapOf("message" to "Deleted successfully"))
+            } else {
+                ResponseUtils.notFound("Quiz question not found")
+            }
         } catch (e: Exception) {
             ResponseUtils.internalServerError("Failed to delete question")
         }

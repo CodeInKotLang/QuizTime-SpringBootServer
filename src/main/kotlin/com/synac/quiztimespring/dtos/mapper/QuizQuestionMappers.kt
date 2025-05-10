@@ -1,4 +1,4 @@
-package com.synac.quiztimespring.mapper
+package com.synac.quiztimespring.dtos.mapper
 
 import com.synac.quiztimespring.database.model.QuizQuestion
 import com.synac.quiztimespring.dtos.QuizQuestionRequest

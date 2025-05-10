@@ -9,5 +9,5 @@ interface QuizQuestionService {
     fun getAll(): List<QuizQuestionResponse>
     fun getRandom(topicCode: Int?, limit: Int): List<QuizQuestionResponse>
     fun getById(id: String): QuizQuestionResponse?
-    fun deleteById(id: String)
+    fun deleteById(id: String): Boolean
 }
