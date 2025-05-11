@@ -1,4 +1,4 @@
-package com.synac.quiztimespring.dtos
+package com.synac.quiztimespring.dtos.requests
 
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank

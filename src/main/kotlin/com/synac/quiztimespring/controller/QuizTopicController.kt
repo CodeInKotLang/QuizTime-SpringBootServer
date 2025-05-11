@@ -1,9 +1,9 @@
 package com.synac.quiztimespring.controller
 
-import com.synac.quiztimespring.dtos.QuizTopicRequest
+import com.synac.quiztimespring.dtos.requests.QuizTopicRequest
 import com.synac.quiztimespring.service.QuizTopicService
-import com.synac.quiztimespring.util.ResponseUtils
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -17,57 +17,38 @@ class QuizTopicController(
     fun upsert(
         @Valid @RequestBody body: QuizTopicRequest
     ): ResponseEntity<Any> {
-        return try {
-            service.upsert(body)
-            ResponseUtils.created("Quiz topic saved successfully")
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to save quiz topic")
-        }
+        service.upsert(body)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(mapOf("message" to "Quiz topic saved successfully"))
     }
 
     @GetMapping
     fun getAll(): ResponseEntity<Any> {
-        return try {
-            val topics = service.getAll()
-            if (topics.isNotEmpty()) {
-                ResponseUtils.ok(topics)
-            } else {
-                ResponseUtils.notFound("Quiz topics not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve topics")
-        }
+        val topics = service.getAll()
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(topics)
     }
 
     @GetMapping(path = ["/{id}"])
     fun getById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            val topic = service.getById(id)
-            if (topic != null) {
-                ResponseUtils.ok(topic)
-            } else {
-                ResponseUtils.notFound("Quiz topic not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve topic")
-        }
+        val topic = service.getById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(topic)
     }
 
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            if (service.deleteById(id)) {
-                ResponseUtils.ok(mapOf("message" to "Deleted successfully"))
-            } else {
-                ResponseUtils.notFound("Quiz topic not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to delete question")
-        }
+        service.deleteById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(mapOf("message" to "Deleted successfully"))
     }
 
 }

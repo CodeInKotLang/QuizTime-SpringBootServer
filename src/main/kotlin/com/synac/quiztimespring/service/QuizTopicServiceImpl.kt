@@ -1,10 +1,11 @@
 package com.synac.quiztimespring.service
 
 import com.synac.quiztimespring.database.repository.QuizTopicRepository
-import com.synac.quiztimespring.dtos.QuizTopicRequest
-import com.synac.quiztimespring.dtos.QuizTopicResponse
-import com.synac.quiztimespring.dtos.mapper.toEntity
-import com.synac.quiztimespring.dtos.mapper.toResponse
+import com.synac.quiztimespring.dtos.requests.QuizTopicRequest
+import com.synac.quiztimespring.dtos.responses.QuizTopicResponse
+import com.synac.quiztimespring.dtos.mappers.toEntity
+import com.synac.quiztimespring.dtos.mappers.toResponse
+import com.synac.quiztimespring.util.ResourceNotFoundException
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
 
@@ -18,19 +19,21 @@ class QuizTopicServiceImpl(
     }
 
     override fun getAll(): List<QuizTopicResponse> {
-        return repository.findAllByOrderByCodeAsc()
-            .map { it.toResponse() }
+        val topics = repository.findAllByOrderByCodeAsc()
+        return topics.map { it.toResponse() }
     }
 
-    override fun getById(id: String): QuizTopicResponse? {
-        val quizTopic = repository.findById(ObjectId(id)).orElse(null)
-        return quizTopic?.toResponse()
+    override fun getById(id: String): QuizTopicResponse {
+        val topic = repository.findById(ObjectId(id)).orElseThrow {
+            ResourceNotFoundException("Quiz topic not found")
+        }
+        return topic.toResponse()
     }
 
-    override fun deleteById(id: String): Boolean {
-        return if (repository.existsById(ObjectId(id))) {
-            repository.deleteById(ObjectId(id))
-            true
-        } else false
+    override fun deleteById(id: String) {
+        if (!repository.existsById(ObjectId(id))) {
+            throw ResourceNotFoundException("Quiz topic not found")
+        }
+        repository.deleteById(ObjectId(id))
     }
 }

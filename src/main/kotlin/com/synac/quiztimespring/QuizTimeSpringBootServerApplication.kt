@@ -9,3 +9,6 @@ class QuizTimeSpringBootServerApplication
 fun main(args: Array<String>) {
 	runApplication<QuizTimeSpringBootServerApplication>(*args)
 }
+
+
+//TODO use standard apiResponse class for responses

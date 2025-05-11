@@ -1,4 +1,4 @@
-package com.synac.quiztimespring.dtos
+package com.synac.quiztimespring.dtos.responses
 
 data class QuizTopicResponse(
     val id: String,

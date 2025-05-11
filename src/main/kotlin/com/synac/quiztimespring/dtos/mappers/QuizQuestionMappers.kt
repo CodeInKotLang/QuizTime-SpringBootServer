@@ -1,8 +1,8 @@
-package com.synac.quiztimespring.dtos.mapper
+package com.synac.quiztimespring.dtos.mappers
 
 import com.synac.quiztimespring.database.model.QuizQuestion
-import com.synac.quiztimespring.dtos.QuizQuestionRequest
-import com.synac.quiztimespring.dtos.QuizQuestionResponse
+import com.synac.quiztimespring.dtos.requests.QuizQuestionRequest
+import com.synac.quiztimespring.dtos.responses.QuizQuestionResponse
 import org.bson.types.ObjectId
 
 fun QuizQuestion.toResponse() = QuizQuestionResponse(

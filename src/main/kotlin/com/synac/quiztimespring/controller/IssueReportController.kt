@@ -1,9 +1,9 @@
 package com.synac.quiztimespring.controller
 
-import com.synac.quiztimespring.dtos.IssueReportRequest
+import com.synac.quiztimespring.dtos.requests.IssueReportRequest
 import com.synac.quiztimespring.service.IssueReportService
-import com.synac.quiztimespring.util.ResponseUtils
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -17,57 +17,38 @@ class IssueReportController(
     fun upsert(
         @Valid @RequestBody body: IssueReportRequest
     ): ResponseEntity<Any> {
-        return try {
-            service.upsert(body)
-            ResponseUtils.created(mapOf("message" to "Saved successfully"))
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to submit issue report")
-        }
+        service.upsert(body)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(mapOf("message" to "Issue report saved successfully"))
     }
 
     @GetMapping
     fun getAll(): ResponseEntity<Any> {
-        return try {
-            val issueReport = service.getAll()
-            if (issueReport.isNotEmpty()) {
-                ResponseUtils.ok(issueReport)
-            } else {
-                ResponseUtils.notFound("Issue Report not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve questions")
-        }
+        val issueReport = service.getAll()
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(issueReport)
     }
 
     @GetMapping(path = ["/{id}"])
     fun getById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            val issueReport = service.getById(id)
-            if (issueReport != null) {
-                ResponseUtils.ok(issueReport)
-            } else {
-                ResponseUtils.notFound("Issue Report not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve reports")
-        }
+        val issueReport = service.getById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(issueReport)
     }
 
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            if (service.deleteById(id)) {
-                ResponseUtils.ok(mapOf("message" to "Deleted successfully"))
-            } else {
-                ResponseUtils.notFound("Quiz question not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to delete question")
-        }
+        service.deleteById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(mapOf("message" to "Deleted successfully"))
     }
 
 }

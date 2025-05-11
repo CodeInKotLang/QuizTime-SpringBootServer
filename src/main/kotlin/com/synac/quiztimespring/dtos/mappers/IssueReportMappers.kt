@@ -1,8 +1,8 @@
-package com.synac.quiztimespring.dtos.mapper
+package com.synac.quiztimespring.dtos.mappers
 
 import com.synac.quiztimespring.database.model.IssueReport
-import com.synac.quiztimespring.dtos.IssueReportRequest
-import com.synac.quiztimespring.dtos.IssueReportResponse
+import com.synac.quiztimespring.dtos.requests.IssueReportRequest
+import com.synac.quiztimespring.dtos.responses.IssueReportResponse
 import org.bson.types.ObjectId
 
 fun IssueReport.toResponse() = IssueReportResponse(

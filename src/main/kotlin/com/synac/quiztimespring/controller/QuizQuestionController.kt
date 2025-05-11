@@ -1,11 +1,9 @@
 package com.synac.quiztimespring.controller
 
-import com.synac.quiztimespring.dtos.QuizQuestionRequest
-import com.synac.quiztimespring.dtos.QuizQuestionResponse
-import com.synac.quiztimespring.dtos.mapper.toResponse
+import com.synac.quiztimespring.dtos.requests.QuizQuestionRequest
 import com.synac.quiztimespring.service.QuizQuestionService
-import com.synac.quiztimespring.util.ResponseUtils
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -19,86 +17,59 @@ class QuizQuestionController(
     fun upsert(
         @Valid @RequestBody body: QuizQuestionRequest
     ): ResponseEntity<Any> {
-        return try {
-            service.upsert(body)
-            ResponseUtils.created(mapOf("message" to "Saved successfully"))
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to save question")
-        }
+        service.upsert(body)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(mapOf("message" to "Quiz question saved successfully"))
     }
 
     @PostMapping("/batch")
     fun insertMultiple(
         @Valid @RequestBody body: List<@Valid QuizQuestionRequest>
     ): ResponseEntity<Any> {
-        return try {
-            service.insertMultiple(body)
-            ResponseUtils.created(mapOf("message" to "Batch insert successfully"))
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to insert question")
-        }
+        service.insertMultiple(body)
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(mapOf("message" to "Batch insert successfully"))
     }
 
     @GetMapping
     fun getAll(): ResponseEntity<Any> {
-        return try {
-            val questions = service.getAll()
-            if (questions.isNotEmpty()) {
-                ResponseUtils.ok(questions)
-            } else {
-                ResponseUtils.notFound("Quiz questions not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve questions")
-        }
+        val questions = service.getAll()
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(questions)
     }
 
     @GetMapping("/random")
-    fun getRandomQuestions(
+    fun getRandom(
         @RequestParam(required = false) topicCode: Int?,
         @RequestParam(required = false, defaultValue = "10") limit: Int
     ): ResponseEntity<Any> {
-        return try {
-            val questions = service.getRandom(topicCode, limit)
-            if (questions.isNotEmpty()) {
-                ResponseUtils.ok(questions)
-            } else {
-                ResponseUtils.notFound("Quiz questions not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve questions")
-        }
+        val questions = service.getRandom(topicCode, limit)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(questions)
     }
 
     @GetMapping(path = ["/{id}"])
     fun getById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            val question = service.getById(id)
-            if (question != null) {
-                ResponseUtils.ok(question)
-            } else {
-                ResponseUtils.notFound("Quiz question not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to retrieve question")
-        }
+        val question = service.getById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(question)
     }
 
     @DeleteMapping(path = ["/{id}"])
     fun deleteById(
         @PathVariable id: String
     ): ResponseEntity<Any> {
-        return try {
-            if (service.deleteById(id)) {
-                ResponseUtils.ok(mapOf("message" to "Deleted successfully"))
-            } else {
-                ResponseUtils.notFound("Quiz question not found")
-            }
-        } catch (e: Exception) {
-            ResponseUtils.internalServerError("Failed to delete question")
-        }
+        service.deleteById(id)
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(mapOf("message" to "Deleted successfully"))
     }
 
 }
