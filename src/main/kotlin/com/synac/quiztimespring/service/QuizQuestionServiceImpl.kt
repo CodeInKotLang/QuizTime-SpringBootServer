@@ -28,11 +28,9 @@ class QuizQuestionServiceImpl(
     }
 
     override fun getRandom(topicCode: Int?, limit: Int): List<QuizQuestionResponse> {
-        val questions = if (topicCode != null) {
+        val questions = topicCode?.let {
             repository.findByTopicCode(topicCode)
-        } else {
-            repository.findAll()
-        }
+        } ?: repository.findAll()
         return questions.shuffled().take(limit).map { it.toResponse() }
     }
 
